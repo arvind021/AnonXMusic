@@ -140,19 +140,12 @@ class YouTube:
                         return None
                     data = await resp.json()
 
-            token = data.get("token")
-            file_id = data.get("file_id") or data.get("id")
+            stream_url = data.get("stream")
 
-            if not token or not file_id:
-                logger.warning(f"BabyAPI missing token/file_id: {data}")
+            if not stream_url:
+                logger.warning(f"BabyAPI missing stream URL: {data}")
                 await redis.aclose()
                 return None
-
-            # Step 2: Build stream URL
-            stream_url = (
-                f"{base_url}/api/stream/{file_id}"
-                f"?token={token}&api={api_key}"
-            )
 
             # Cache for 1 hour
             await redis.set(cache_key, stream_url, ex=3600)
